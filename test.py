@@ -1,0 +1,1 @@
+print(hash(1), hash(1), hash(1))
