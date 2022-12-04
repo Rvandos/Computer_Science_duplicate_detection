@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import numpy as np
 import regex as re
-from hash import hash_elements
+from hash import hash_function, get_hash_list
 
 with open('TVs-all-merged.json') as f:
     data = json.load(f)
@@ -62,12 +62,26 @@ for key in processed_data.keys():
     m = m+1
 
 
-print(bin_matrix)
+#print(bin_matrix)
 
 #Minhashing function 
 #Make signature size a hyper parameter to tune
-signature_size = 5
-hash_elements = hash_elements(sig_size = signature_size, num_elem_univer_set = n)
+signature_size = round(n * 0.5)                         #Reduce number of elements by half
+minhash_matrix = np.ones(shape=(signature_size, m)) * np.inf
+
+#Get hash table for the hash functions (every row will denote respectively: a,b,c coefficients for (a*x+b) % c hash-function
+hash_table = get_hash_list(sig_size= signature_size, num_elem_univer_set=n)
+
+#for loop should start here?
+for row in range(n):
+    for hash_func in range(signature_size):
+        hash_value = hash_function(a=hash_table[hash_func][0], b = hash_table[hash_func][1], c= hash_table[hash_func][2], x= row)
+        for col in range(m):
+            if bin_matrix[row][col] == 1 and hash_value < minhash_matrix[hash_value][col]:
+                minhash_matrix[hash_value][col] = hash_value
+
+
+
 
 
 
