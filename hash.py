@@ -19,11 +19,11 @@ def getCoefList(max_num, k):
     return coeff_list
 
 #Function that outputs a list with a list of possible coefficients a,b and a fixed coefficient c
-#number of elements in the universal set is multiplied by 53 to avoid collisison in same bucket.
+#number of elements in the universal set is multiplied by 5 to avoid collisison in same bucket.
 #c is chosen to be the next largest prime. a and b cannot be 0 or 1, as this may lead to unevenly distributed hash keys
 def hash_elements(sig_size, num_elem_univer_set):
 	coefficients = []
-	max_ab = num_elem_univer_set * 53
+	max_ab = num_elem_univer_set * 5
 	c = sympy.nextprime(max_ab)
 	ab_list = getCoefList(max_ab, sig_size*2)
 	coefficients.append(ab_list)

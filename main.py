@@ -7,8 +7,7 @@ from hash import hash_function, get_hash_list
 with open('TVs-all-merged.json') as f:
     data = json.load(f)
 
-
-#get all elements  
+#Function to pre-process the data 
 def pre_process(data):
     df = {}
     mw_title = set()
@@ -43,43 +42,56 @@ mw_title, mw_value, processed_data = pre_process(data)
 #print(processed_data)
 
 
+#Function to obtain the binary matrix
+def get_binary_matrix(mw_title, mw_value, processed_data):
+    mw = set.union(mw_title, mw_value)
+    n = len(mw)
+    m = len(processed_data.keys())
+    bin_matrix = np.zeros((n,m))
+    m=0
+    for key in processed_data.keys():
+        k=0
+        for model_word in mw:
+            for item in processed_data[key]:
+                if(model_word == item):
+                    bin_matrix[k, m] = 1
+            k = k+1
+        m = m+1
+    return bin_matrix
 
-#Binary matrix:
-mw = set.union(mw_title, mw_value)
-n = len(mw)
-m = len(processed_data.keys())
-bin_matrix = np.zeros((n,m))
-
-#create binary matrix
-m=0
-for key in processed_data.keys():
-    k=0
-    for model_word in mw:
-        for item in processed_data[key]:
-            if(model_word == item):
-                bin_matrix[k, m] = 1
-        k = k+1
-    m = m+1
-
-
+bin_matrix = get_binary_matrix(mw_title= mw_title, mw_value= mw_value, processed_data= processed_data)
 #print(bin_matrix)
 
-#Minhashing function 
-#Make signature size a hyper parameter to tune
-signature_size = round(n * 0.5)                         #Reduce number of elements by half
-minhash_matrix = np.ones(shape=(signature_size, m)) * np.inf
 
-#Get hash table for the hash functions (every row will denote respectively: a,b,c coefficients for (a*x+b) % c hash-function
-hash_table = get_hash_list(sig_size= signature_size, num_elem_univer_set=n)
 
-#for loop should start here?
-for row in range(n):
-    for hash_func in range(signature_size):
-        hash_value = hash_function(a=hash_table[hash_func][0], b = hash_table[hash_func][1], c= hash_table[hash_func][2], x= row)
-        for col in range(m):
-            if bin_matrix[row][col] == 1 and hash_value < minhash_matrix[hash_value][col]:
-                minhash_matrix[hash_value][col] = hash_value
+#Function that performs minhashing and outputs the signature matrix. 
+#Input sig_ratio is the percentage of elements in the universal sets to keep (number between 0 and 1)
+def get_signature_matrix(binary_matrix, signature_size):
+    n = len(binary_matrix)
+    m = len(binary_matrix[0])                         
+    minhash_matrix = np.ones(shape=(signature_size, m)) * np.inf
 
+    #Get hash table for the hash functions (every row will denote respectively: a,b,c coefficients for (a*x+b) % c hash-function
+    hash_table = get_hash_list(sig_size= signature_size, num_elem_univer_set=n)
+
+    #for loop should start here?
+    for row in range(n):
+        print('Progress: ',row, ' of ', n)
+        for hash_func in range(signature_size):
+            hash_value = int(hash_function(a=hash_table[hash_func][0], b = hash_table[hash_func][1], c= hash_table[hash_func][2], x= row))
+            for col in range(m):
+                if binary_matrix[row][col] == 1 and hash_value < minhash_matrix[hash_func][col]:
+                    minhash_matrix[hash_func][col] = hash_value
+    return minhash_matrix
+
+#signature_matrix = get_signature_matrix(binary_matrix= bin_matrix, signature_size = 1500)
+#store signature matrix to csv file.
+#pd.DataFrame(signature_matrix).to_csv('Signature_matrix.csv')
+
+
+#LSH specify b and r
+#Then obtain hash function to hash columns in bands to buckets, takes as input a vector of r integers and outputs a bucket
+#Then ideally use for every band a different hash function
 
 
 
