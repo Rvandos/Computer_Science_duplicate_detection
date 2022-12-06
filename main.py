@@ -74,7 +74,6 @@ def get_signature_matrix(binary_matrix, signature_size):
     #Get hash table for the hash functions (every row will denote respectively: a,b,c coefficients for (a*x+b) % c hash-function
     hash_table = get_hash_list(sig_size= signature_size, num_elem_univer_set=n)
 
-    #for loop should start here?
     for row in range(n):
         print('Progress: ',row, ' of ', n)
         for hash_func in range(signature_size):
@@ -84,9 +83,9 @@ def get_signature_matrix(binary_matrix, signature_size):
                     minhash_matrix[hash_func][col] = hash_value
     return minhash_matrix
 
-#signature_matrix = get_signature_matrix(binary_matrix= bin_matrix, signature_size = 1500)
+signature_matrix = get_signature_matrix(binary_matrix= bin_matrix, signature_size = 1500)
 #store signature matrix to csv file.
-#pd.DataFrame(signature_matrix).to_csv('Signature_matrix.csv')
+pd.DataFrame(signature_matrix).to_csv('Signature_matrix.csv')
 
 
 #LSH specify b and r

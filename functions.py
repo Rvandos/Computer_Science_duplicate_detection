@@ -15,3 +15,12 @@ def add_to_dict(dict, key, value):
         #append new value
         dict[key].append(value)
     return(dict)
+
+
+#Function that only adds tuple (x,y) to a set when both (x,y) and (y,x) are not yet contained in the set
+def add_to_set(set_obj, tuple_pair):
+    x = tuple_pair[0]
+    y = tuple_pair[1]
+    if tuple_pair not in set_obj and (y,x) not in set_obj:
+        set_obj.add(tuple_pair)
+    return set_obj
