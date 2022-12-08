@@ -13,6 +13,7 @@ with open('TVs-all-merged.json') as f:
 mw_title, mw_value, processed_data = functions.pre_process(data)
 
 
+
 # 1). Get 5 bootstraps: the splitted train and test data, and signature matrices are stored in seperate files 
 # as they take a long time to load.
 np.random.seed(0) 
@@ -22,6 +23,16 @@ for bootstrap in range(5):
     ###########################################################################
     train_data, test_data = functions.boot_strap_split(processed_data)
 
+    #Store the train and test data files seperately
+    train_data_json = json.dumps(train_data)
+    test_data_json = json.dumps(test_data)
+    with open('train_data_bootstrap'+ str(bootstrap)+'.json', 'w') as f:
+        f.write(train_data_json)
+    f.close()
+
+    with open('test_data_bootstrap'+ str(bootstrap)+'.json', 'w') as f:
+        f.write(test_data_json)
+    f.close()
 
     ###########################################################################
     ### Compute the signature matrix for train data:
@@ -29,16 +40,16 @@ for bootstrap in range(5):
     train_bin_matrix = functions.get_binary_matrix(mw_title,mw_value,train_data)
     train_sig_matrix = functions.get_signature_matrix(train_bin_matrix, 1600)
     #Save signature matrix into csv file
-    pd.DataFrame(train_sig_matrix).to_csv('Signature_matrix_train_bootstrap' + bootstrap + '.csv')
+    pd.DataFrame(train_sig_matrix).to_csv('Signature_matrix_train_bootstrap' + str(bootstrap) + '.csv')
 
 
     ###########################################################################
-    ### Compute the signature matrix for train data:
+    ### Compute the signature matrix for test data:
     ###########################################################################
     test_bin_matrix = functions.get_binary_matrix(mw_title,mw_value, test_data)
     test_sig_matrix = functions.get_signature_matrix(test_bin_matrix, 1600)
     #Save signature matrix into csv file
-    pd.DataFrame(test_sig_matrix).to_csv('Signature_matrix_test_bootstrap' + bootstrap + '.csv')
+    pd.DataFrame(test_sig_matrix).to_csv('Signature_matrix_test_bootstrap' + str(bootstrap) + '.csv')
 
 
 
