@@ -135,8 +135,8 @@ def get_bandrow(sig_matrix, min_bands, max_bands):
 
 
 #LSH function returns a set of tuples involving the products that are candidates.
-#Out of all the possible band choices (s.t. b * r = n), at least 25 bands have to be chosen, for 20 it crashes as concatenating 
-#75 numbers will be too large to convert back to an integer
+#Out of all the possible band choices (s.t. b * r = n), at least 40 bands have to be chosen, otherwise it crashes as concatenating 
+#40 numbers will be too large to convert back to an integer
 def LSH(sig_matrix, bands):
     #Check if b * r = n
     n = len(sig_matrix)
@@ -208,9 +208,8 @@ def get_distance_matrix(candidate_pairs, signature_matrix):
 
 #Function to do the clustering, returns a list of duplicate tuple-sets
 def clustering(distance_matrix, dist_threshold):
-    clustering_object = AgglomerativeClustering(affinity='precomputed', linkage= 'average', distance_threshold= dist_threshold, n_clusters=None).fit(distance_matrix)
+    clustering_object = AgglomerativeClustering(affinity='precomputed', linkage= 'single', distance_threshold= dist_threshold, n_clusters=None).fit(distance_matrix)
     cluster_assignment = clustering_object.labels_
-    print(cluster_assignment)
     #Get a list with the found duplicate pairs.
     n = len(cluster_assignment)
     cluster_pairs = set()
@@ -303,7 +302,7 @@ def boot_strap_split(processed_data):
 
 #Function to get the true pairs of duplicates, takes as input a list with dictionaries representing products
 #Outputs a list with sets, where indices are used to refer to products.
-#for every product with n duplicates --> (2^n - n) /2 pair representations.
+#for every product with n duplicates --> n(n-1)/2 pair representations.
 def get_true_dup_pairs(data):
     dup_dict = {}
     dup_list = set()
@@ -323,14 +322,23 @@ def get_true_dup_pairs(data):
     return dup_list
 
 
-#Function to get the f1 performance score, input: sets with tuples of candidates
+#Function to get the f1 performance score, input: sets with tuples of candidates (already in percentages)
 def get_performance(found_dup, true_dup):
     #Find the sets that are in both lists 
     tp = len(set.intersection(found_dup,true_dup))
-    precision = tp / len(found_dup)
-    recall = tp / len(true_dup)
-    f1_score = 2 * (precision * recall) / (precision + recall)
-    performance_dic = {'tp': tp, 'precision': precision, 'recall': recall, 'f1':f1_score}
+    try:
+        precision = tp / len(found_dup)
+    except:
+        precision = 0 
+    try:
+        recall = tp / len(true_dup)
+    except:
+        recall = 0
+    try:
+        f1_score = 2 * (precision * recall) / (precision + recall)
+    except:
+        f1_score = 0
+    performance_dic = {'tp': tp , 'precision': precision, 'recall': recall, 'f1':f1_score}
     return performance_dic
 
 
@@ -342,6 +350,10 @@ def get_scalability_performance(candidate_pairs, found_dup, true_dup):
 
     pair_quality = dup_correct / comparisons_lsh
     pair_completeness = dup_correct / total_dup
-    f1_score = 2 * (pair_quality * pair_completeness) / (pair_quality + pair_completeness)
+    try:
+        f1_score = 2 * (pair_quality * pair_completeness) / (pair_quality + pair_completeness)
+    except:
+        f1_score = 0
+
     performance_dic = {'pair quality': pair_quality, 'pair completeness': pair_completeness, 'f1': f1_score}
     return performance_dic
