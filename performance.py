@@ -6,29 +6,38 @@ import functions
 #Dictionary to store lsh performance, keys denote the bands used, every key will have a corresponding list of the form:
 # [fraction of comparison, pair quality, pair completeness, f1*]
 lsh_performance_dic = {}
-overall_performance = {}
+
+#Dictionary to store overall performance, keys denote the bands used, every key will have a corresponding list of the form:
+# [fraction of comparisons, precision, recall, f1]
+overall_performance_dic = {}
+
+#Other measure that stores the number of TP found by lsh and TP found by clustering, Dictionary to store overall performance,
+# keys denote the bands used, every key will have a corresponding list of the form:
+# [LSH TP, clustering TP]
+lsh_to_cluster_performance_dic = {}
+
 
 
 #For all bootstraps get performance measurements!
 for bootstrap in range(5):
-
+    print("processing bootsrap: ", bootstrap)
     ##########################################################################
     ### First load in the signature matrix and the train, test data sets
     ##########################################################################
 
     #Signature matrices
-    train_sig_matrix = pd.read_csv('bootstrap_input/Signature_matrix_train_bootstrap' + bootstrap + '.csv')
+    train_sig_matrix = pd.read_csv('bootstrap_input/Signature_matrix_train_bootstrap' + str(bootstrap) + '.csv')
     train_sig_matrix = train_sig_matrix.drop('Unnamed: 0', axis=1).to_numpy()
 
-    test_sig_matrix = pd.read_csv('bootstrap_input/Signature_matrix_test_bootstrap' + bootstrap + '.csv')
+    test_sig_matrix = pd.read_csv('bootstrap_input/Signature_matrix_test_bootstrap' + str(bootstrap) + '.csv')
     test_sig_matrix = test_sig_matrix.drop('Unnamed: 0', axis=1).to_numpy()
 
     #Import train and test data
-    with open('bootstrap_input/train_data_bootstrap' + bootstrap + '.json', 'r') as f:
+    with open('bootstrap_input/train_data_bootstrap' + str(bootstrap) + '.json', 'r') as f:
         train_data = json.load(f)
     f.close()
 
-    with open('bootstrap_input/test_data_bootstrap' + bootstrap + '.json', 'r') as f:
+    with open('bootstrap_input/test_data_bootstrap' + str(bootstrap) + '.json', 'r') as f:
         test_data = json.load(f)
     f.close()
 
@@ -41,6 +50,7 @@ for bootstrap in range(5):
 
     #Perform analysis for multiple number of bands
     for band in band_list:
+        print('Processing band: ', band)
         ##########################################################################
         ### Training part of the algorithm:
         ##########################################################################
@@ -89,6 +99,39 @@ for bootstrap in range(5):
         else:
             lsh_performance_dic[band] = to_add
 
+        #Store overall performance results
+        to_add2 = np.array([fraction_comparisons, overall_performance['precision'], overall_performance['recall'], overall_performance['f1']])
+        if band in overall_performance_dic.keys():
+            overall_performance_dic[band] = overall_performance_dic[band] + to_add2
+        else:
+            overall_performance_dic[band] = to_add2
+
+
+        #Store lsh vs cluster performance:
+        to_add3 = np.array([len(set.intersection(candidate_pairs_test, true_duplicates_test)), len(set.intersection(found_duplicates_test, true_duplicates_test))])
+        if band in lsh_to_cluster_performance_dic.keys():
+            lsh_to_cluster_performance_dic[band] = lsh_to_cluster_performance_dic[band] + to_add3
+        else:
+            lsh_to_cluster_performance_dic[band] = to_add3
+
+
 #average across performance, so divide by 5
 for key in lsh_performance_dic:
-    lsh_performance_dic[key] = lsh_performance_dic[key] /5
+    lsh_performance_dic[key] = list(lsh_performance_dic[key] /5)
+    overall_performance_dic[key] = list(overall_performance_dic[key] /5)
+    lsh_to_cluster_performance_dic[key] = list(lsh_to_cluster_performance_dic[key]/5)
+
+
+#Write the results to seperate files:
+with open('LSH_performance.json', 'w') as f:
+    f.write(json.dumps(lsh_performance_dic))
+f.close()
+
+with open('overall_performance.json', 'w') as f:
+    f.write(json.dumps(overall_performance_dic))
+f.close()
+
+with open('LSH_to_cluster_performance.json', 'w') as f:
+    f.write(json.dumps(lsh_to_cluster_performance_dic))
+f.close()
+
