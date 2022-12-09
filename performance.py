@@ -11,12 +11,8 @@ lsh_performance_dic = {}
 # [fraction of comparisons, precision, recall, f1]
 overall_performance_dic = {}
 
-#Other measure that stores the number of TP found by lsh and TP found by clustering, Dictionary to store overall performance,
-# keys denote the bands used, every key will have a corresponding list of the form:
-# [LSH TP, clustering TP]
-lsh_to_cluster_performance_dic = {}
 
-
+np.random.seed(6)
 
 #For all bootstraps get performance measurements!
 for bootstrap in range(5):
@@ -107,19 +103,11 @@ for bootstrap in range(5):
             overall_performance_dic[band] = to_add2
 
 
-        #Store lsh vs cluster performance:
-        to_add3 = np.array([len(set.intersection(candidate_pairs_test, true_duplicates_test)), len(set.intersection(found_duplicates_test, true_duplicates_test))])
-        if band in lsh_to_cluster_performance_dic.keys():
-            lsh_to_cluster_performance_dic[band] = lsh_to_cluster_performance_dic[band] + to_add3
-        else:
-            lsh_to_cluster_performance_dic[band] = to_add3
-
 
 #average across performance, so divide by 5
 for key in lsh_performance_dic:
     lsh_performance_dic[key] = list(lsh_performance_dic[key] /5)
     overall_performance_dic[key] = list(overall_performance_dic[key] /5)
-    lsh_to_cluster_performance_dic[key] = list(lsh_to_cluster_performance_dic[key]/5)
 
 
 #Write the results to seperate files:
@@ -131,7 +119,4 @@ with open('overall_performance.json', 'w') as f:
     f.write(json.dumps(overall_performance_dic))
 f.close()
 
-with open('LSH_to_cluster_performance.json', 'w') as f:
-    f.write(json.dumps(lsh_to_cluster_performance_dic))
-f.close()
 
