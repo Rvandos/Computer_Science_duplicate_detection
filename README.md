@@ -6,11 +6,11 @@ Hierarchical clustering.
 This repository contains in total 5 python files: "Bootstrap.py", "functions.py", "hash.py", "performance.py", "plots.py". And three folders with remaining documents.
 
 ## General idea:
-1). Data pre-processing of titles and product descriptions.
-2). Binary matrix to represent products, dimension of elements that represent a product is reduced by min-hashing.
-3). LSH is applied to the signature matrix to obtain candidate pairs.
-4). A distance matrix is computed, products that are not implied to be candidates by LSH are given a distance of infinity. For the candidate pairs, the inverse of the cosine similarity measure is computed based on the columns of the signature matrix.
-5). The distance matrix is used as input to an agglomerative hierarchical clustering algorithm that returns clusters of duplicate pairs.
+#### 1). Data pre-processing of titles and product descriptions.
+#### 2). Binary matrix to represent products, dimension of elements that represent a product is reduced by min-hashing.
+#### 3). LSH is applied to the signature matrix to obtain candidate pairs.
+#### 4). A distance matrix is computed, products that are not implied to be candidates by LSH are given a distance of infinity. For the candidate pairs, the inverse of the cosine similarity measure is computed based on the columns of the signature matrix.
+#### 5). The distance matrix is used as input to an agglomerative hierarchical clustering algorithm that returns clusters of duplicate pairs.
 
 
 ## Python files
