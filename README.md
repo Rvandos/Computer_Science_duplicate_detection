@@ -21,10 +21,10 @@ This is done for convenience as it takes quite some time to obtain the signature
 
 
 ### 4) "performance.py"
--This file uses both the intermediary input files created by "Bootstrap.py" and functions from "functions.py". It computes the cluster threshold based on the training data set, and it performs LSH and clustering on the test set to obtain clusters containing duplicate pairs. Moreover, performance measures are created wit h
+-This file uses both the intermediary input files created by "Bootstrap.py" and functions from "functions.py". It computes the cluster threshold based on the training data set, and it performs LSH and clustering on the test set to obtain clusters containing duplicate pairs. Moreover, performance/efficiency measures are calculated among which include: precision, recall, F1-score, pair quality, and pair completeness. Averages are taken over the 5 bootstrap samples and the number of bands in the LSH algorithm are altered in order to be able to analyze the performance/efficiency measures for different fractions of comparisons made. It then stores these results in seperate json files, which can be retrieved in the folder "results".
 
 
-
-
+### 5) "plots.py"
+-This file takes the performance/efficiency results from the "results" folder as input and creates multiple graphs. These plots can be found in the folder "figures".
 
 
